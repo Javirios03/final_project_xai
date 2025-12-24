@@ -1,0 +1,36 @@
+name: xai_project
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10.12 # ⚠️ Versión explícita
+  - pip=23.1.2
+
+  # PyTorch con CUDA (especificar versión CUDA)
+  - pytorch=2.0.1
+  - torchvision=0.15.2
+  - pytorch-cuda=11.8 # O pytorch-cpu si no usas GPU
+
+  # Scientific stack
+  - numpy=1.24.3
+  - pandas=2.0.3
+  - scikit-learn=1.3.0
+  - matplotlib=3.7.1
+  - seaborn=0.12.2
+
+  # Image processing
+  - opencv=4.8.0
+  - pillow=10.0.0
+
+  # Jupyter
+  - jupyter=1.0.0
+  - ipykernel=6.23.1
+  - nb_conda_kernels=2.3.1
+
+  # Pip packages (no disponibles en conda)
+  - pip:
+      - captum==0.6.0
+      - pytorch-grad-cam==1.4.8
+      - kaggle==1.5.16
