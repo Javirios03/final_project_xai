@@ -50,11 +50,52 @@ Se emplea ResNet-18 preentrenado en ImageNet \cite{he2016deep}, modificando la c
 
 Para estudiar el fenómeno de forma controlada, se crea un segundo modelo entrenado desde cero (sin preentrenamiento \footnote{En pruebas iniciales, se intentó hacer con preentrenamiento, pero el modelo no aprendía los atajos deseados (probablemenente debido a que ya había aprendido características robustas que impedían la dependencia de atajos espurios durante el preentrenamiento)}) sobre un dataset corrupto. Se añaden marcadores circulares blancos en la esquina superior izquierda únicamente a imágenes de la clase PNEUMONIA durante entrenamiento. Este artefacto artificial actúa como un \textit{shortcut} espurio correlacionado perfectamente con la clase objetivo.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.65\textwidth]{figures/04_corruption_comparison.png}
+    \caption{Ejemplos de imágenes originales vs. corruptas con marcador artificial}
+    \label{fig:corruption}
+\end{figure}
+
+\subsection{Entrenamiento y Evaluación}
+
+Ambos modelos (baseline y shortcut) se entrenan, respectivamente, durante 20 y 15 épocas hasta convergencia. De cara a diagnosticar un posible sobreajuste, se monitorean las curvas de pérdida y accuracy en entrenamiento y validación (Figura \ref{fig:overfitting_sub1}). Adicionalmente, se evalúa el rendimiento en datos limpios y corruptos para cuantificar el impacto del shortcut learning. Como podemos observar en la Figura \ref{fig:overfitting_sub2}, el modelo baseline alcanza un accuracy del 81.57\% en datos limpios, mientras que el modelo shortcut logra un 98.88\% en datos corruptos pero sólo un 46.47\% en datos limpios, evidenciando su dependencia del marcador artificial.
+
+\begin{figure}[h!]
+    \centering
+
+    % Fila superior: dos imágenes lado a lado
+    \begin{subfigure}[c]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/06_overfitting_check.png}
+        \caption{Evolución de las funciones de pérdida y accuracy durante el entrenamiento (Baseline)}
+        \label{fig:overfitting_sub1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[c]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/07_shortcut_learning_comparison.png}
+        \caption{Comparación de rendimiento entre modelo baseline y shortcut}
+        \label{fig:overfitting_sub2}
+    \end{subfigure}
+    \caption{Análisis de sobreajuste y rendimiento entre modelos}
+    \label{fig:overfitting}
+\end{figure}
+
 \section{Técnicas XAI Aplicadas}
+
+De cara a interpretar y comparar ambos modelos, hemos seleccionado dos técnicas de XAI, una local/híbrida (Grad-CAM) y otra global (Activation Maximization):
 
 \subsection{Grad-CAM (Gradient-weighted Class Activation Mapping)}
 
-Grad-CAM visualiza las regiones de la imagen que más contribuyen a la decisión del modelo mediante el cálculo de gradientes de la clase objetivo respecto a los mapas de activación de la última capa convolucional. Los resultados muestran diferencias claras entre ambos modelos (Figura \ref{fig:gradcam}).
+Grad-CAM visualiza las regiones de una imagen concreta que más contribuyen a la decisión del modelo mediante el cálculo de gradientes de la clase objetivo respecto a los mapas de activación de la última capa convolucional. Los resultados muestran diferencias claras entre ambos modelos (Figura \ref{fig:gradcam}).
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{reports/figures/08_gradcam_pneumonia_case1.png}
+%     \caption{Comparación Grad-CAM entre modelo baseline y shortcut en casos de neumonía}
+%     \label{fig:gradcam}
+% \end{figure}
 
 El modelo baseline enfoca correctamente en regiones pulmonares centrales, mientras que el modelo corrupto concentra su atención exclusivamente en la esquina superior izquierda donde se ubica el marcador artificial.
 
@@ -157,6 +198,45 @@ Este proyecto demuestra experimentalmente la efectividad de técnicas XAI para d
 \end{enumerate}
 
 En conclusión, XAI no es opcional en aplicaciones médicas de IA: es una necesidad técnica y ética para garantizar que los modelos aprendan patrones clínicamente relevantes en lugar de correlaciones espurias. La combinación de múltiples técnicas de explicabilidad (Grad-CAM, Activation Maximization, sanity checks) proporciona una visión más completa y confiable del comportamiento del modelo.
+
+\appendix
+
+\section{Ilustraciones Adicionales}
+
+Si bien no incluimos todas las figuras en el cuerpo principal del informe (en pos de la brevedad), proponemos una serie de ilustraciones complementarias que pueden facilitar la comprensión de los conceptos tratados:
+
+\begin{figure}[htbp]
+    \centering
+
+    % Fila superior: dos imágenes lado a lado
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/01_class_distribution.png}
+        \caption{Distribución de clases en el dataset}
+        \label{fig:sub1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/02_image_properties.png}
+        \caption{Propiedades de las imágenes (tamaños y formatos)}
+        \label{fig:sub2}
+    \end{subfigure}
+
+    % Salto de línea
+    \vspace{0.5cm}
+
+    % Fila inferior: una imagen más ancha
+    \begin{subfigure}[b]{0.9\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/03_sample_images.png}
+        \caption{Imágenes de muestra del dataset}
+        \label{fig:sub3}
+    \end{subfigure}
+
+    \caption{Información visual adicional sobre el dataset utilizado}
+    \label{fig:tres_imagenes}
+\end{figure}
 
 \bibliographystyle{plain}
 \bibliography{citations}
