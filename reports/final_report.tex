@@ -7,6 +7,7 @@
 \usepackage{booktabs}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{caption}
+\usepackage{float}
 \usepackage{subcaption}
 
 \captionsetup{justification=centering}
@@ -20,7 +21,7 @@
 \maketitle
 
 \begin{abstract}
-    Este trabajo investiga la aplicabilidad de técnicas de Inteligencia Artificial Explicable (XAI) en la detección de neumonía mediante imágenes de rayos X torácicos. Se entrena un modelo baseline basado en ResNet-18 preentrenado y se compara con un modelo intencionalmente afectado por \textit{shortcut learning}. Mediante técnicas como Grad-CAM y Activation Maximization, se demuestran diferencias en las características aprendidas por ambos, y cómo éstas no son evidentes mediante métricas tradicionales (como \textit{accuracy} en un cierto conjunto de datos). Los resultados subrayan la importancia crítica de XAI en aplicaciones médicas para garantizar que los modelos aprendan patrones clínicamente relevantes.
+    Este trabajo investiga la aplicabilidad de técnicas de Inteligencia Artificial Explicable (XAI) en la detección de neumonía mediante imágenes de rayos X torácicos. Se entrena un modelo baseline basado en ResNet-18 preentrenado y se compara con un modelo intencionalmente afectado por \textit{shortcut learning}. Mediante técnicas como Grad-CAM y Activation Maximization, se demuestran diferencias en las características aprendidas por ambos, y cómo éstas no son evidentes mediante métricas tradicionales (como \textit{accuracy} en un cierto conjunto de datos). Los resultados subrayan la importancia crítica de XAI en aplicaciones médicas para garantizar que los modelos aprendan patrones clínicamente relevantes. Todos los códigos y datos están disponibles en \url{https://github.com/Javirios03/final_project_xai}.
 \end{abstract}
 
 \section{Introducción}
@@ -65,7 +66,7 @@ Ambos modelos (baseline y shortcut) se entrenan, respectivamente, durante 20 y 1
 
 Como podemos observar en la Figura \ref{fig:overfitting_sub2}, el modelo baseline alcanza un accuracy del 81.57\% en datos limpios, mientras que el modelo shortcut logra un 98.88\% en datos corruptos pero sólo un 46.47\% en datos limpios, evidenciando su dependencia del marcador artificial.
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
 
     % Fila superior: dos imágenes lado a lado
@@ -94,7 +95,7 @@ De cara a interpretar y comparar ambos modelos, hemos seleccionado dos técnicas
 
 \subsection{Grad-CAM (Gradient-weighted Class Activation Mapping)}
 
-Grad-CAM visualiza las regiones de una imagen concreta que más contribuyen a la decisión del modelo mediante el cálculo de gradientes de la clase objetivo respecto a los mapas de activación de la última capa convolucional. De esta forma, se generan mapas de calor superpuestos a la imagen original que indican las áreas de mayor atención del modelo.
+Grad-CAM \cite{selvaraju2017gradcam} visualiza las regiones de una imagen concreta que más contribuyen a la decisión del modelo mediante el cálculo de gradientes de la clase objetivo respecto a los mapas de activación de la última capa convolucional. De esta forma, se generan mapas de calor superpuestos a la imagen original que indican las áreas de mayor atención del modelo.
 
 \begin{figure}[h]
     \centering
@@ -114,7 +115,9 @@ Grad-CAM visualiza las regiones de una imagen concreta que más contribuyen a la
 \end{figure}
 
 El modelo baseline enfoca correctamente en el área pulmonar, específicamente el lóbulo inferior derecho, donde se observan opacidades características de neumonía. Dicha atención no cambia radicalmente al introducir el marcador artificial. En contraste, en el caso de la imagen corrupta, el modelo shortcut concentra toda su atención en el marcador circular y, en la imagen limpia, no muestra atención significativa en ninguna región relevante.
+
 \vspace{0.5cm}
+
 En adición a este análisis cualitativo, realizamos un estudio cuantitativo de Grad-CAM sobre múltiples ejemplos, obteniendo un mapa de calor promediado a lo largo de 100 imágenes de la clase PNEUMONIA:
 
 \begin{figure}[h]
@@ -215,7 +218,7 @@ Los resultados detallados en las anteriores secciones subrayan la importancia cr
     \item \textbf{Transfer learning con precaución}: El preentrenamiento en ImageNet aporta robustez contra shortcuts, pero no elimina completamente el riesgo
     \item \textbf{Evaluación en distribuciones múltiples}: Los modelos deben validarse en datos de diferentes instituciones y equipos radiológicos
 \end{enumerate}
-
+\newpage
 \section{Limitaciones y Discusión}
 
 \subsection{Limitaciones del Estudio}
@@ -314,7 +317,7 @@ Si bien no incluimos todas las figuras en el cuerpo principal del informe (en po
     \caption{Información visual adicional sobre el dataset utilizado}
     \label{fig:tres_imagenes}
 \end{figure}
-
+\newpage
 \subsection{Visualizaciones de Grad-CAM Complementarias}
 \label{sec:appendix_gradcam}
 
@@ -336,7 +339,7 @@ Si bien no incluimos todas las figuras en el cuerpo principal del informe (en po
 \subsection{Distribución de la atención Grad-CAM según regiones pulmonares}
 \label{sec:appendix_attention_distribution}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{figures/13_attention_distribution_barplot.png}
     \caption{Distribución cuantitativa de la atención Grad-CAM en diferentes regiones pulmonares}
@@ -344,9 +347,11 @@ Si bien no incluimos todas las figuras en el cuerpo principal del informe (en po
 \end{figure}
 
 \section{Métricas Detalladas de Rendimiento}
+
+\subsection{Métricas del Modelo Baseline}
 \label{sec:appendix_metrics}
 
-\begin{table}[h]  % {l} = izquierda, ancho = 35% del texto
+\begin{table}[H]  % {l} = izquierda, ancho = 35% del texto
     \centering
     \begin{tabular}{||l|c||}
         \toprule
@@ -363,12 +368,29 @@ Si bien no incluimos todas las figuras en el cuerpo principal del informe (en po
     \label{tab:metrics}
 \end{table}
 
+\subsection{Matriz de Confusión}
+\label{app:confusion_matrix}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lcc}
+        \toprule
+                                 & \textbf{Pred: NORMAL} & \textbf{Pred: PNEUMONIA} \\
+        \midrule
+        \textbf{True: NORMAL}    & 186 (79.5\%)          & 48 (20.5\%)              \\
+        \textbf{True: PNEUMONIA} & 3 (0.8\%)             & 387 (99.2\%)             \\
+        \bottomrule
+    \end{tabular}
+    \caption{Matriz de confusión del modelo baseline en test set}
+    \label{tab:confusion_matrix}
+\end{table}
+
 \section{Scores de Activation Maximization}
 \label{sec:appendix_am_scores}
 
 Los scores obtenidos (medidos en logits) para las imágenes sintetizadas mediante Activation Maximization son los siguientes:
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \begin{tabular}{lcc}
         \toprule
@@ -384,8 +406,9 @@ Los scores obtenidos (medidos en logits) para las imágenes sintetizadas mediant
     \label{tab:am_scores}
 \end{table}
 
+\newpage
 
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 \bibliography{citations}
 
 \end{document}
